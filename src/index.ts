@@ -19,7 +19,7 @@ class Embed {
     mode,
     templateId,
   }: {
-    applicationId: string;
+    applicationId?: string;
     config: CompositionConfigEditor;
     containerId: string;
     dimensions?: {
@@ -58,7 +58,9 @@ class Embed {
     iFrame.setAttribute("loading", "lazy");
     iFrame.setAttribute(
       "src",
-      `https://embed.editframe.test/${applicationId}?mode=${mode}${
+      `https://embed.editframe.test${
+        applicationId ? `/${applicationId}` : ""
+      }?mode=${mode}${
         mode === "template" && templateId ? `&template=${templateId}` : ""
       }${
         layers
@@ -84,8 +86,12 @@ class Embed {
         this.config = config;
       }
 
-      if (event.data && event.data.ready) {
+      if (event.data && event.data.iframeReady) {
         await this.handleIframeReady();
+      }
+
+      if (event.data && event.data.editorReady) {
+        await this.handleEditorReady();
       }
 
       if (event.data && event.data.layerId) {
@@ -102,11 +108,11 @@ class Embed {
         const durationedMediaLayerIds = this.config.layers
           .filter((layer) => "source" in layer)
           .map((layer) => layer.id);
-        if (
-          durationedMediaLayerIds.every((layerId) =>
-            this.readyMediaIds.includes(layerId)
-          )
-        ) {
+        const allMediaReady = durationedMediaLayerIds.every((layerId) =>
+          this.readyMediaIds.includes(layerId)
+        );
+
+        if (this.config.layers.length === 0 || allMediaReady) {
           this.handleEditorReady();
         }
       }
