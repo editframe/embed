@@ -4,6 +4,7 @@ class Embed {
   public config: CompositionConfigEditor;
   private iFrame!: HTMLIFrameElement;
   private editframeLogo!: HTMLImageElement;
+  private readyMediaIds: string[] = [];
 
   /**
    * Constructs a new instance of an Editframe embed.
@@ -45,7 +46,7 @@ class Embed {
     editframeLogo.src =
       "https://www.editframe.com/docs/layer-configuration/position/editframe-logo.png";
     editframeLogo.style.position = "absolute";
-    editframeLogo.style.transition = "opacity 0.5s ease";
+    editframeLogo.style.transition = "opacity 0.5s";
 
     const iFrame = document.createElement("iframe");
     iFrame.setAttribute("loading", "lazy");
@@ -59,14 +60,28 @@ class Embed {
     iFrame.style.height = `${dimensions ? `${dimensions.height}px` : "100vh"}`;
     iFrame.style.border = "none";
     iFrame.style.opacity = "0";
-    iFrame.style.transition = "opacity 0.5s ease";
+    iFrame.style.transition = "opacity 0.5s";
 
     container.appendChild(iFrame);
     container.appendChild(editframeLogo);
 
     window.addEventListener("message", async (event) => {
-      if (event.data && event.data.ready === true) {
-        await this.handleEditorReady();
+      if (event.data && event.data.ready) {
+        await this.handleIframeReady();
+      }
+
+      if (event.data && event.data.layerId) {
+        const {
+          data: { layerId },
+        } = event;
+
+        if (!this.readyMediaIds.includes(layerId)) {
+          this.readyMediaIds.push(layerId);
+        }
+      }
+      const layerIds = this.config.layers.map((layer) => layer.id);
+      if (layerIds.every((layerId) => this.readyMediaIds.includes(layerId))) {
+        this.handleEditorReady();
       }
     });
 
@@ -74,8 +89,11 @@ class Embed {
     this.editframeLogo = editframeLogo;
   }
 
-  private handleEditorReady = async () => {
+  private handleIframeReady = async () => {
     await this.sendCallWithValue("setConfig", this.config);
+  };
+
+  private handleEditorReady = async () => {
     this.iFrame.style.opacity = "1";
     this.editframeLogo.style.opacity = "0";
   };
