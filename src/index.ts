@@ -1,30 +1,86 @@
 class Embed {
-  private frame!: HTMLIFrameElement;
+  public config = {};
+  private iFrame!: HTMLIFrameElement;
+  private editframeLogo!: HTMLImageElement;
 
   /**
    * Constructs a new instance of an Editframe embed.
    * @param configuration options
    */
-  constructor(id: string) {
-    const iframes = document.querySelectorAll("iframe");
-    const frame =
-      Array.from(iframes).find((iframe) => iframe.id === id) || iframes[0];
-    if (!frame) return;
-    this.frame = frame;
+  constructor({
+    applicationId,
+    config,
+    containerId,
+    dimensions,
+    mode,
+    templateId,
+  }: {
+    applicationId: string;
+    config: any;
+    containerId: string;
+    dimensions?: {
+      height: number;
+      width: number;
+    };
+    mode: "composition" | "development" | "template" | "preview";
+    templateId?: string;
+  }) {
+    this.config = config;
+
+    const container = document.getElementById(containerId);
+
+    if (!container) {
+      throw new Error("Container not found");
+    }
+
+    container.style.alignItems = "center";
+    container.style.display = "flex";
+    container.style.justifyContent = "center";
+    container.style.height = dimensions ? `${dimensions.height}px` : "100%";
+    container.style.width = dimensions ? `${dimensions.width}px` : "100%";
+
+    const editframeLogo = document.createElement("img");
+    editframeLogo.src =
+      "https://www.editframe.com/docs/layer-configuration/position/editframe-logo.png";
+    editframeLogo.style.position = "absolute";
+    editframeLogo.style.transition = "opacity 0.5s ease";
+
+    const iFrame = document.createElement("iframe");
+    iFrame.setAttribute("loading", "lazy");
+    iFrame.setAttribute(
+      "src",
+      `https://embed.editframe.test/${applicationId}?mode=${mode}${
+        mode === "template" && templateId ? `&template=${templateId}` : ""
+      }`
+    );
+    iFrame.style.width = `${dimensions ? `${dimensions.width}px` : "100vw"}`;
+    iFrame.style.height = `${dimensions ? `${dimensions.height}px` : "100vh"}`;
+    iFrame.style.border = "none";
+    iFrame.style.opacity = "0";
+    iFrame.style.transition = "opacity 0.5s ease";
+    iFrame.onload = this.handleIFrameLoaded;
+
+    container.appendChild(iFrame);
+    container.appendChild(editframeLogo);
+
+    this.iFrame = iFrame;
+    this.editframeLogo = editframeLogo;
   }
 
-  public async setConfig(config: any): Promise<boolean> {
-    return await this.sendCallWithValue("setConfig", config);
-  }
+  private handleIFrameLoaded = async () => {
+    setTimeout(async () => {
+      await this.sendCallWithValue("setConfig", this.config);
+    }, 500);
 
-  public async setTimeline(layers: any): Promise<boolean> {
-    return await this.sendCallWithValue("setTimeline", layers);
-  }
+    this.iFrame.style.opacity = "1";
+    this.editframeLogo.style.opacity = "0";
+  };
 
   private async sendCallWithValue(call: string, value: any): Promise<boolean> {
-    if (!this.frame.contentWindow) return false;
+    if (!this.iFrame.contentWindow) return false;
+
     try {
-      this.frame.contentWindow.postMessage(
+      this.iFrame.contentWindow.postMessage(
         {
           call,
           value,
@@ -39,4 +95,3 @@ class Embed {
 }
 
 export default Embed;
-
