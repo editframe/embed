@@ -96,6 +96,9 @@ class Embed {
   private handleEditorReady = async () => {
     this.iFrame.style.opacity = "1";
     this.editframeLogo.style.opacity = "0";
+    setTimeout(() => {
+      this.editframeLogo.remove();
+    }, 500);
   };
 
   private async sendCallWithValue(call: string, value: any): Promise<boolean> {
