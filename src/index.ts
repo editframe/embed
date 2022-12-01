@@ -25,7 +25,7 @@ class Embed {
       height: number;
       width: number;
     };
-    mode: "composition" | "development" | "template" | "preview";
+    mode: "composition" | "template" | "preview";
     templateId?: string;
   }) {
     this.config = config;
@@ -33,7 +33,11 @@ class Embed {
     const container = document.getElementById(containerId);
 
     if (!container) {
-      throw new Error("Container not found");
+      throw new Error(`Container #${containerId} not found`);
+    }
+
+    if (!["composition", "template", "preview"].includes(mode)) {
+      throw new Error(`Invalid mode: ${mode}`);
     }
 
     container.style.alignItems = "center";
@@ -66,6 +70,14 @@ class Embed {
     container.appendChild(editframeLogo);
 
     window.addEventListener("message", async (event) => {
+      if (event.data && event.data.config) {
+        const {
+          data: { config },
+        } = event;
+
+        this.config = config;
+      }
+
       if (event.data && event.data.ready) {
         await this.handleIframeReady();
       }
@@ -79,9 +91,18 @@ class Embed {
           this.readyMediaIds.push(layerId);
         }
       }
-      const layerIds = this.config.layers.map((layer) => layer.id);
-      if (layerIds.every((layerId) => this.readyMediaIds.includes(layerId))) {
-        this.handleEditorReady();
+
+      if (this.config) {
+        const durationedMediaLayerIds = this.config.layers
+          .filter((layer) => "source" in layer)
+          .map((layer) => layer.id);
+        if (
+          durationedMediaLayerIds.every((layerId) =>
+            this.readyMediaIds.includes(layerId)
+          )
+        ) {
+          this.handleEditorReady();
+        }
       }
     });
 
@@ -90,7 +111,9 @@ class Embed {
   }
 
   private handleIframeReady = async () => {
-    await this.sendCallWithValue("setConfig", this.config);
+    if (this.config) {
+      await this.sendCallWithValue("setConfig", this.config);
+    }
   };
 
   private handleEditorReady = async () => {
