@@ -63,7 +63,9 @@ class Embed {
     iFrame.setAttribute(
       "src",
       `${baseEmbedUrl}${applicationId ? `/${applicationId}` : ""}?mode=${mode}${
-        mode === "template" && templateName ? `&template=${templateName}` : ""
+        mode === "template" && templateName
+          ? `&templateName=${templateName}`
+          : ""
       }${
         layers
           ? `&layers=${layers.map((layer) => layer.toLowerCase()).join(",")}`
