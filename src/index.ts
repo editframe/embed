@@ -23,8 +23,8 @@ class Embed {
     config: CompositionConfigEditor;
     containerId: string;
     dimensions?: {
-      height: number;
-      width: number;
+      height: string;
+      width: string;
     };
     layers?: LayerKey[];
     mode: "composition" | "template" | "preview";
@@ -45,8 +45,8 @@ class Embed {
     container.style.alignItems = "center";
     container.style.display = "flex";
     container.style.justifyContent = "center";
-    container.style.height = dimensions ? `${dimensions.height}px` : "100%";
-    container.style.width = dimensions ? `${dimensions.width}px` : "100%";
+    container.style.height = "100%";
+    container.style.width = "100%";
 
     const editframeLogo = document.createElement("img");
     editframeLogo.src =
@@ -68,9 +68,8 @@ class Embed {
           : ""
       }`
     );
-    iFrame.style.width = `${dimensions ? `${dimensions.width}px` : "100vw"}`;
-    iFrame.style.height = `${dimensions ? `${dimensions.height}px` : "100vh"}`;
-    iFrame.style.border = "none";
+    iFrame.style.width = dimensions?.width || "100vw";
+    iFrame.style.height = dimensions?.height || "100vh";
     iFrame.style.opacity = "0";
     iFrame.style.transition = "opacity 0.5s";
 
