@@ -1,7 +1,7 @@
 {
   "name": "@editframe/embed",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -24,6 +24,7 @@
       "import": "./dist/index.es.js"
     }
   },
+  "sideEffects": false,
   "files": [
     "dist"
   ]
