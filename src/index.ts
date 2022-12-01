@@ -17,7 +17,7 @@ class Embed {
     dimensions,
     layers,
     mode,
-    templateId,
+    templateName,
   }: {
     applicationId?: string;
     config: CompositionConfigEditor;
@@ -28,7 +28,7 @@ class Embed {
     };
     layers?: LayerKey[];
     mode: "composition" | "template" | "preview";
-    templateId?: string;
+    templateName?: string;
   }) {
     this.config = config;
 
@@ -63,7 +63,7 @@ class Embed {
     iFrame.setAttribute(
       "src",
       `${baseEmbedUrl}${applicationId ? `/${applicationId}` : ""}?mode=${mode}${
-        mode === "template" && templateId ? `&template=${templateId}` : ""
+        mode === "template" && templateName ? `&template=${templateName}` : ""
       }${
         layers
           ? `&layers=${layers.map((layer) => layer.toLowerCase()).join(",")}`
