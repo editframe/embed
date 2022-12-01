@@ -73,6 +73,7 @@ class Embed {
     iFrame.style.width = dimensions?.width || "100vw";
     iFrame.style.height = dimensions?.height || "100vh";
     iFrame.style.opacity = "0";
+    iFrame.style.outline = "none";
     iFrame.style.transition = "opacity 0.5s";
 
     container.appendChild(iFrame);
