@@ -1,4 +1,4 @@
-import { CompositionConfigEditor } from "@editframe/shared-types";
+import { CompositionConfigEditor, LayerKey } from "@editframe/shared-types";
 
 class Embed {
   public config: CompositionConfigEditor;
@@ -15,6 +15,7 @@ class Embed {
     config,
     containerId,
     dimensions,
+    layers,
     mode,
     templateId,
   }: {
@@ -25,6 +26,7 @@ class Embed {
       height: number;
       width: number;
     };
+    layers?: LayerKey[];
     mode: "composition" | "template" | "preview";
     templateId?: string;
   }) {
@@ -58,6 +60,10 @@ class Embed {
       "src",
       `https://embed.editframe.test/${applicationId}?mode=${mode}${
         mode === "template" && templateId ? `&template=${templateId}` : ""
+      }${
+        layers
+          ? `&layers=${layers.map((layer) => layer.toLowerCase()).join(",")}`
+          : ""
       }`
     );
     iFrame.style.width = `${dimensions ? `${dimensions.width}px` : "100vw"}`;
