@@ -58,20 +58,22 @@ class Embed {
     iFrame.style.border = "none";
     iFrame.style.opacity = "0";
     iFrame.style.transition = "opacity 0.5s ease";
-    iFrame.onload = this.handleIFrameLoaded;
 
     container.appendChild(iFrame);
     container.appendChild(editframeLogo);
+
+    window.addEventListener("message", async (event) => {
+      if (event.data && event.data.ready === true) {
+        await this.handleEditorReady();
+      }
+    });
 
     this.iFrame = iFrame;
     this.editframeLogo = editframeLogo;
   }
 
-  private handleIFrameLoaded = async () => {
-    setTimeout(async () => {
-      await this.sendCallWithValue("setConfig", this.config);
-    }, 500);
-
+  private handleEditorReady = async () => {
+    await this.sendCallWithValue("setConfig", this.config);
     this.iFrame.style.opacity = "1";
     this.editframeLogo.style.opacity = "0";
   };
