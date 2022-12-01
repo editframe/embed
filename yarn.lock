@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@editframe/shared-types@^3.8.1":
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/@editframe/shared-types/-/shared-types-3.8.1.tgz#66c1dfb460d1f768efd53a0c7a94caf2213ddc54"
+  integrity sha512-rr8bssItMgz9DheKjTh8sfgxow+fo9wyFBWHb62Pyc1Z9Ndjz13thb1mNIYePKwst8J0msm+BcEoV3+L6ZGCIg==
+  dependencies:
+    type-fest "^2.14.0"
+
 "@esbuild/android-arm@0.15.16":
   version "0.15.16"
   resolved "https://registry.yarnpkg.com/@esbuild/android-arm/-/android-arm-0.15.16.tgz#0642926178b15e3d1545efae6eee05c4f3451d15"
@@ -218,6 +225,11 @@ supports-preserve-symlinks-flag@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
+
+type-fest@^2.14.0:
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.19.0.tgz#88068015bb33036a598b952e55e9311a60fd3a9b"
+  integrity sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==
 
 typescript@^4.6.4:
   version "4.9.3"

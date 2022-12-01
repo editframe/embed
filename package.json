@@ -13,7 +13,9 @@
     "typescript": "^4.6.4",
     "vite": "^3.2.3"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@editframe/shared-types": "^3.8.1"
+  },
   "peerDependencies": {},
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",

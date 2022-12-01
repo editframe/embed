@@ -1,5 +1,7 @@
+import { CompositionConfigEditor } from "@editframe/shared-types";
+
 class Embed {
-  public config = {};
+  public config: CompositionConfigEditor;
   private iFrame!: HTMLIFrameElement;
   private editframeLogo!: HTMLImageElement;
 
@@ -16,7 +18,7 @@ class Embed {
     templateId,
   }: {
     applicationId: string;
-    config: any;
+    config: CompositionConfigEditor;
     containerId: string;
     dimensions?: {
       height: number;
