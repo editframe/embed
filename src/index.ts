@@ -55,12 +55,14 @@ class Embed {
     editframeLogo.style.transition = "opacity 0.5s";
 
     const iFrame = document.createElement("iframe");
+    const baseEmbedUrl =
+      process.env.NODE_ENV === "production"
+        ? "https://embed.editframe.com"
+        : "https://embed.editframe.test";
     iFrame.setAttribute("loading", "lazy");
     iFrame.setAttribute(
       "src",
-      `https://embed.editframe.test${
-        applicationId ? `/${applicationId}` : ""
-      }?mode=${mode}${
+      `${baseEmbedUrl}${applicationId ? `/${applicationId}` : ""}?mode=${mode}${
         mode === "template" && templateId ? `&template=${templateId}` : ""
       }${
         layers
