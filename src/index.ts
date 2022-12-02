@@ -2,6 +2,7 @@ import { CompositionConfigEditor, LayerKey } from "@editframe/shared-types";
 
 class Embed {
   public config: CompositionConfigEditor;
+  public templateName?: string;
   private iFrame!: HTMLIFrameElement;
   private editframeLogo!: HTMLImageElement;
   private readyMediaIds: string[] = [];
@@ -31,6 +32,7 @@ class Embed {
     templateName?: string;
   }) {
     this.config = config;
+    this.templateName = templateName;
 
     const container = document.getElementById(containerId);
 
@@ -109,7 +111,7 @@ class Embed {
         }
       }
 
-      if (this.config) {
+      if (this.config || this.templateName) {
         const durationedMediaLayerIds = this.config.layers
           .filter((layer) => "source" in layer)
           .map((layer) => layer.id);
