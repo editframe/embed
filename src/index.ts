@@ -1,10 +1,17 @@
 import { CompositionConfigEditor, LayerKey } from "@editframe/shared-types";
+import { v4 as uuid } from "uuid";
 
 class Embed {
+  public applicationId?: string;
   public config: CompositionConfigEditor;
+  public container: HTMLElement | null;
+  public dimensions?: { height: string; width: string };
+  public iFrameId: string;
+  public layers?: LayerKey[];
+  public mode: string;
   public templateName?: string;
-  private iFrame!: HTMLIFrameElement;
   private editframeLogo!: HTMLImageElement;
+  private iFrame!: HTMLIFrameElement;
   private readyMediaIds: string[] = [];
 
   /**
@@ -31,12 +38,16 @@ class Embed {
     mode: "composition" | "template" | "preview";
     templateName?: string;
   }) {
+    this.applicationId = applicationId;
     this.config = config;
+    this.container = document.getElementById(containerId);
+    this.dimensions = dimensions;
+    this.iFrameId = uuid().slice(0, 6);
+    this.layers = layers;
+    this.mode = mode;
     this.templateName = templateName;
 
-    const container = document.getElementById(containerId);
-
-    if (!container) {
+    if (!this.container) {
       throw new Error(`Container #${containerId} not found`);
     }
 
@@ -44,18 +55,33 @@ class Embed {
       throw new Error(`Invalid mode: ${mode}`);
     }
 
+    this.setupContainer(this.container);
+    this.setupEditframeLogo();
+    this.setupIFrame();
+    this.setupEventListeners();
+  }
+
+  private setupContainer = (container: HTMLElement) => {
     container.style.alignItems = "center";
     container.style.display = "flex";
     container.style.justifyContent = "center";
     container.style.height = "100%";
     container.style.width = "100%";
+  };
 
+  private setupEditframeLogo = () => {
     const editframeLogo = document.createElement("img");
     editframeLogo.src =
       "https://www.editframe.com/docs/layer-configuration/position/editframe-logo.png";
     editframeLogo.style.position = "absolute";
     editframeLogo.style.transition = "opacity 0.5s";
+    this.container?.appendChild(editframeLogo);
+    this.editframeLogo = editframeLogo;
 
+    return editframeLogo;
+  };
+
+  private setupIFrame = () => {
     const iFrame = document.createElement("iframe");
     const baseEmbedUrl =
       process.env.NODE_ENV === "production"
@@ -64,28 +90,39 @@ class Embed {
     iFrame.setAttribute("loading", "lazy");
     iFrame.setAttribute(
       "src",
-      `${baseEmbedUrl}${applicationId ? `/${applicationId}` : ""}?mode=${mode}${
-        mode === "template" && templateName
-          ? `&templateName=${templateName}`
+      `${baseEmbedUrl}${
+        this.applicationId ? `/${this.applicationId}` : ""
+      }?mode=${this.mode}${
+        this.mode === "template" && this.templateName
+          ? `&templateName=${this.templateName}`
           : ""
       }${
-        layers
-          ? `&layers=${layers.map((layer) => layer.toLowerCase()).join(",")}`
+        this.layers
+          ? `&layers=${this.layers
+              .map((layer) => layer.toLowerCase())
+              .join(",")}`
           : ""
       }`
     );
-    iFrame.style.width = dimensions?.width || "100vw";
-    iFrame.style.height = dimensions?.height || "100vh";
+    iFrame.style.width = this.dimensions?.width || "100vw";
+    iFrame.style.height = this.dimensions?.height || "100vh";
     iFrame.style.opacity = "0";
     iFrame.style.border = "none";
     iFrame.style.outline = "none";
     iFrame.style.transition = "opacity 0.5s";
+    this.container?.appendChild(iFrame);
+    this.iFrame = iFrame;
 
-    container.appendChild(iFrame);
-    container.appendChild(editframeLogo);
+    return iFrame;
+  };
 
+  private setupEventListeners = () => {
     window.addEventListener("message", async (event) => {
-      if (event.data && event.data.config) {
+      if (
+        event.data &&
+        event.data.config &&
+        event.data.iFrameId === this.iFrameId
+      ) {
         const {
           data: { config },
         } = event;
@@ -93,7 +130,19 @@ class Embed {
         this.config = config;
       }
 
-      if (event.data && event.data.iframeReady) {
+      if (event.data && event.data.pageLoaded) {
+        await this.handlePageLoaded();
+      }
+
+      if (
+        event.data &&
+        event.data.iFrameId &&
+        event.data.iFrameId !== this.iFrameId
+      ) {
+        return;
+      }
+
+      if (event.data && event.data.iFrameReady) {
         await this.handleIframeReady();
       }
 
@@ -111,7 +160,7 @@ class Embed {
         }
       }
 
-      if (this.config || this.templateName) {
+      if (this.config) {
         const durationedMediaLayerIds = this.config.layers
           .filter((layer) => "source" in layer)
           .map((layer) => layer.id);
@@ -124,14 +173,20 @@ class Embed {
         }
       }
     });
+  };
 
-    this.iFrame = iFrame;
-    this.editframeLogo = editframeLogo;
-  }
+  private handlePageLoaded = async () => {
+    await this.sendCallWithValue("setIframeId", {
+      iFrameId: this.iFrameId,
+    });
+  };
 
   private handleIframeReady = async () => {
     if (this.config) {
-      await this.sendCallWithValue("setConfig", this.config);
+      await this.sendCallWithValue("setConfig", {
+        config: this.config,
+        iFrameId: this.iFrameId,
+      });
     }
   };
 

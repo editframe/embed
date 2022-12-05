@@ -1,7 +1,7 @@
 {
   "name": "@editframe/embed",
   "private": false,
-  "version": "0.0.9",
+  "version": "0.0.10",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,11 +10,13 @@
   },
   "devDependencies": {
     "@types/node": "^18.11.9",
+    "@types/uuid": "^9.0.0",
     "typescript": "^4.6.4",
     "vite": "^3.2.3"
   },
   "dependencies": {
-    "@editframe/shared-types": "^3.8.1"
+    "@editframe/shared-types": "^3.8.1",
+    "uuid": "^9.0.0"
   },
   "peerDependencies": {},
   "main": "dist/index.cjs.js",
